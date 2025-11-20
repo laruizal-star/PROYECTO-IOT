@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Panel IoT - Blynk</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #aaa3;
+    }
+    .switch {
+      width: 60px;
+      height: 30px;
+      background: #ccc;
+      border-radius: 30px;
+      position: relative;
+      cursor: pointer;
+    }
+    .circle {
+      width: 26px;
+      height: 26px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: 0.2s;
+    }
+    .on {
+      background: #4caf50;
+    }
+    .on .circle {
+      left: 32px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>CONTROL DE TEMPERATURA - IOT</h1>
+
+  <div class="card">
+    <h2>Temperatura: <span id="temp">--</span> °C</h2>
+    <h2>Humedad: <span id="hum">--</span> %</h2>
+  </div>
+
+  <div class="card">
+    <h2>Ventilador</h2>
+    <div id="toggle" class="switch" onclick="toggleFan()">
+      <div class="circle"></div>
+    </div>
+  </div>
+
+<script>
+const TOKEN = "onD0Wv2vSP2jHaeDORcnpKjyZ05mrJye"; // 
+const BASE = "https://blynk.cloud/external/api";
+
+// Leer sensores
+function readData() {
+  fetch(`${BASE}/get?token=${TOKEN}&V0,V1`)
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById("hum").innerText = data.V0;
+      document.getElementById("temp").innerText = data.V1;
+    });
+}
+setInterval(readData, 2000);
+readData();
+
+// Alternar ventilador
+function toggleFan() {
+  const sw = document.getElementById("toggle");
+  const isOn = sw.classList.contains("on");
+  const newVal = isOn ? 0 : 1;
+
+  fetch(`${BASE}/update?token=${TOKEN}&V2=${newVal}`);
+
+  if (isOn) sw.classList.remove("on");
+  else sw.classList.add("on");
+}
+</script>
+
+</body>
+</html>

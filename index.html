@@ -4,42 +4,12 @@
   <meta charset="UTF-8">
   <title>Panel IoT - Blynk</title>
   <style>
-    body {
-      font-family: Arial;
-      background: #f5f5f5;
-      padding: 20px;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #aaa3;
-    }
-    .switch {
-      width: 60px;
-      height: 30px;
-      background: #ccc;
-      border-radius: 30px;
-      position: relative;
-      cursor: pointer;
-    }
-    .circle {
-      width: 26px;
-      height: 26px;
-      background: white;
-      border-radius: 50%;
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      transition: 0.2s;
-    }
-    .on {
-      background: #4caf50;
-    }
-    .on .circle {
-      left: 32px;
-    }
+    body { font-family: Arial; background: #f5f5f5; padding: 20px; }
+    .card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 0 10px #aaa3; }
+    .switch { width: 60px; height: 30px; background: #ccc; border-radius: 30px; position: relative; cursor: pointer; }
+    .circle { width: 26px; height: 26px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.2s; }
+    .on { background: #4caf50; }
+    .on .circle { left: 32px; }
   </style>
 </head>
 
@@ -50,11 +20,19 @@
   <div class="card">
     <h2>Temperatura: <span id="temp">--</span> °C</h2>
     <h2>Humedad del ambiente: <span id="hum">--</span> %</h2>
+    <h2>Humedad del suelo: <span id="soil">--</span></h2>
   </div>
 
   <div class="card">
     <h2>Ventilador</h2>
-    <div id="toggle" class="switch" onclick="toggleFan()">
+    <div id="toggleFan" class="switch" onclick="toggleFan()">
+      <div class="circle"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Bomba de agua</h2>
+    <div id="togglePump" class="switch" onclick="togglePump()">
       <div class="circle"></div>
     </div>
   </div>
@@ -63,21 +41,13 @@
 const TOKEN = "FyZnCNggIQ91xPA6a_FPfExvB-hcwfn0"; 
 const BASE = "https://blynk.cloud/external/api";
 
-// ---- Leer Temperatura (V0) ----
+// ---- Leer datos ----
 function readData() {
-  // Temperatura
-  fetch(`${BASE}/get?token=${TOKEN}&V0`)
-    .then(r => r.json())
-    .then(data => {
-      document.getElementById("temp").innerText = data;
-    });
-
-  // Humedad
-  fetch(`${BASE}/get?token=${TOKEN}&V1`)
-    .then(r => r.json())
-    .then(data => {
-      document.getElementById("hum").innerText = data;
-    });
+  fetch(`${BASE}/get?token=${TOKEN}&V0`).then(r=>r.json()).then(data => document.getElementById("temp").innerText = data);
+  fetch(`${BASE}/get?token=${TOKEN}&V1`).then(r=>r.json()).then(data => document.getElementById("hum").innerText = data);
+  fetch(`${BASE}/get?token=${TOKEN}&V3`).then(r=>r.json()).then(data => {
+    document.getElementById("soil").innerText = data == 0 ? "SECO" : "HÚMEDO";
+  });
 }
 
 setInterval(readData, 2000);
@@ -85,14 +55,20 @@ readData();
 
 // ---- Control Ventilador (V2) ----
 function toggleFan() {
-  const sw = document.getElementById("toggle");
+  const sw = document.getElementById("toggleFan");
   const isOn = sw.classList.contains("on");
   const newVal = isOn ? 0 : 1;
-
   fetch(`${BASE}/update?token=${TOKEN}&V2=${newVal}`);
+  sw.classList.toggle("on");
+}
 
-  if (isOn) sw.classList.remove("on");
-  else sw.classList.add("on");
+// ---- Control Bomba (V4) ----
+function togglePump() {
+  const sw = document.getElementById("togglePump");
+  const isOn = sw.classList.contains("on");
+  const newVal = isOn ? 0 : 1;
+  fetch(`${BASE}/update?token=${TOKEN}&V4=${newVal}`);
+  sw.classList.toggle("on");
 }
 </script>
 

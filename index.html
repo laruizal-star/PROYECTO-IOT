@@ -1,9 +1,107 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Mi sitio</title>
-  </head>
-  <body>
-    <h1>Hola mundo</h1>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>Panel IoT - Blynk</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #aaa3;
+    }
+    .switch {
+      width: 60px;
+      height: 30px;
+      background: #ccc;
+      border-radius: 30px;
+      position: relative;
+      cursor: pointer;
+    }
+    .circle {
+      width: 26px;
+      height: 26px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: 0.2s;
+    }
+    .on {
+      background: #4caf50;
+    }
+    .on .circle {
+      left: 32px;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <h1>CONTROL DE TEMPERATURA - IOT</h1>
+
+  <div class="card">
+    <h2>Temperatura: <span id="temp">--</span> °C</h2>
+    <h2>Humedad: <span id="hum">--</span> %</h2>
+  </div>
+
+  <div class="card">
+    <h2>Ventilador</h2>
+    <div id="toggle" class="switch" onclick="toggleFan()">
+      <div class="circle"></div>
+    </div>
+  </div>
+
+<script>
+
+const TOKEN = "onD0Wv2vSP2jHaeDORcnpKjyZ05mrJyeI";
+const BASE = "https://blynk.cloud/external/api";
+
+// =============================
+//  LECTURA DE SENSORES (V0,V1)
+// =============================
+function readData() {
+  fetch(`${BASE}/batch/get?token=${TOKEN}&V0&V1`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.V0 !== undefined)
+        document.getElementById("hum").innerText = data.V0;
+
+      if (data.V1 !== undefined)
+        document.getElementById("temp").innerText = data.V1;
+    })
+    .catch(err => console.log("Error leyendo", err));
+}
+
+setInterval(readData, 2000);
+readData();
+
+// =============================
+//  SWITCH DEL VENTILADOR (V2)
+// =============================
+function toggleFan() {
+  const s = document.getElementById("toggle");
+  const on = s.classList.contains("on");
+  const newVal = on ? 0 : 1;
+
+  fetch(`${BASE}/update?token=${TOKEN}&pin=V2&value=${newVal}`);
+
+  if (on)
+    s.classList.remove("on");
+  else
+    s.classList.add("on");
+}
+
+</script>
+
+</body>
 </html>

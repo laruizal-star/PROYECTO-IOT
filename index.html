@@ -10,6 +10,13 @@
     .circle { width: 26px; height: 26px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.2s; }
     .on { background: #4caf50; }
     .on .circle { left: 32px; }
+
+    /* 🔥 Nuevo: estilo de bloqueo */
+    .disabled {
+      opacity: 0.4;
+      cursor: not-allowed !important;
+      pointer-events: none;
+    }
   </style>
 </head>
 
@@ -37,16 +44,20 @@
       <div class="circle"></div>
     </div>
   </div>
+
   <div class="card">
-    <h2>Activar bomba de agua (solo activa si es se habilita con la opcion manual)</h2>
+    <h2>Activar bomba de agua <br><small>(Disponible solo en modo manual)</small></h2>
     <div id="togglePump" class="switch" onclick="togglePump()">
       <div class="circle"></div>
     </div>
   </div>
 
 <script>
+
 const TOKEN = "FyZnCNggIQ91xPA6a_FPfExvB-hcwfn0"; 
 const BASE = "https://blynk.cloud/external/api";
+
+let modoActual = 0; // guardamos el modo localmente
 
 // ---- Leer datos ----
 function readData() {
@@ -57,42 +68,18 @@ function readData() {
     document.getElementById("soil").innerText = data == 0 ? "HÚMEDO" : "SECO";
   });
 
+  // ---- Leer modo (V5) ----
   fetch(`${BASE}/get?token=${TOKEN}&V5`).then(r=>r.json()).then(data => {
+    modoActual = data;
     let mode = document.getElementById("toggleMode");
     document.getElementById("modeText").innerText = data == 1 ? "AUTOMÁTICO" : "MANUAL";
-
     if(data == 1) mode.classList.add("on");
     else mode.classList.remove("on");
+
+    // 🔥 Habilitar / deshabilitar el botón de la bomba según modo
+    let pumpBtn = document.getElementById("togglePump");
+    if(data == 1) pumpBtn.classList.add("disabled");
+    else pumpBtn.classList.remove("disabled");
   });
-}
 
-setInterval(readData, 2000);
-readData();
-
-// ---- Switch Ventilador ----
-function toggleFan() {
-  const sw = document.getElementById("toggleFan");
-  const newVal = sw.classList.contains("on") ? 0 : 1;
-  fetch(`${BASE}/update?token=${TOKEN}&V2=${newVal}`);
-  sw.classList.toggle("on");
-}
-
-// ---- Switch Bomba (Manual) ----
-function togglePump() {
-  const sw = document.getElementById("togglePump");
-  const newVal = sw.classList.contains("on") ? 0 : 1;
-  fetch(`${BASE}/update?token=${TOKEN}&V4=${newVal}`);
-  sw.classList.toggle("on");
-}
-
-// ---- Switch Modo ----
-function toggleMode() {
-  const sw = document.getElementById("toggleMode");
-  const newVal = sw.classList.contains("on") ? 0 : 1;
-  fetch(`${BASE}/update?token=${TOKEN}&V5=${newVal}`);
-  sw.classList.toggle("on");
-}
-</script>
-
-</body>
-</html>
+  // ---- Leer estado real de la bomba

@@ -15,7 +15,7 @@
 
 <body>
 
-  <h1>CONTROL DE TEMPERATURA - IOT</h1>
+  <h1>CONTROL DE INVERNADERO - IOT CON HTTP</h1>
 
   <div class="card">
     <h2>Temperatura: <span id="temp">--</span> °C</h2>
@@ -24,22 +24,21 @@
   </div>
 
   <div class="card">
-    <h2>Modo</h2>
-    <h3><span id="modeText">MANUAL</span></h3>
-    <div id="toggleMode" class="switch" onclick="toggleMode()">
-      <div class="circle"></div>
-    </div>
-  </div>
-
-  <div class="card">
     <h2>Ventilador</h2>
     <div id="toggleFan" class="switch" onclick="toggleFan()">
       <div class="circle"></div>
     </div>
   </div>
-
+  
   <div class="card">
-    <h2>Bomba de agua</h2>
+    <h2>Modo de riego</h2>
+    <h3><span id="modeText">MANUAL</span></h3>
+    <div id="toggleMode" class="switch" onclick="toggleMode()">
+      <div class="circle"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Activar bomba de agua (solo activa si es se habilita con la opcion manual)</h2>
     <div id="togglePump" class="switch" onclick="togglePump()">
       <div class="circle"></div>
     </div>

@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Panel IoT - Blynk</title>
-
   <style>
     body {
       font-family: Arial;
@@ -42,7 +41,6 @@
       left: 32px;
     }
   </style>
-
 </head>
 
 <body>
@@ -62,45 +60,34 @@
   </div>
 
 <script>
-
-const TOKEN = "onD0Wv2vSP2jHaeDORcnpKjyZ05mrJye";
+const TOKEN = "FyZnCNggIQ91xPA6a_FPfExvB-hcwfn0";  
 const BASE = "https://blynk.cloud/external/api";
 
-// =============================
-//  LECTURA DE SENSORES V0 & V1
-// =============================
+// Leer sensores correctamente
 function readData() {
-  fetch(`${BASE}/batch/get?token=${TOKEN}&v0&v1`)
-    .then(r => r.json())
-    .then(data => {
-      if (data.v0 !== undefined)
-        document.getElementById("hum").innerText = data.v0;
+  fetch(`${BASE}/get?token=${TOKEN}&V0`)
+    .then(r => r.text())
+    .then(val => document.getElementById("hum").innerText = val);
 
-      if (data.v1 !== undefined)
-        document.getElementById("temp").innerText = data.v1;
-    })
-    .catch(err => console.log("Error leyendo", err));
+  fetch(`${BASE}/get?token=${TOKEN}&V1`)
+    .then(r => r.text())
+    .then(val => document.getElementById("temp").innerText = val);
 }
-
 setInterval(readData, 2000);
 readData();
 
-// =============================
-//  SWITCH DEL VENTILADOR (V2)
-// =============================
+// Alternar ventilador
 function toggleFan() {
   const sw = document.getElementById("toggle");
   const isOn = sw.classList.contains("on");
   const newVal = isOn ? 0 : 1;
 
-  fetch(`${BASE}/update?token=${TOKEN}&V2=${newVal}`);
+  fetch(`${BASE}/update?token=${TOKEN}&V2=${newVal}`)
+    .then(r => r.text())
+    .then(console.log);
 
-  if (isOn)
-    sw.classList.remove("on");
-  else
-    sw.classList.add("on");
+  sw.classList.toggle("on");
 }
-
 </script>
 
 </body>

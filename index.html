@@ -19,8 +19,16 @@
 
   <div class="card">
     <h2>Temperatura: <span id="temp">--</span> °C</h2>
-    <h2>Humedad del ambiente: <span id="hum">--</span> %</h2>
+    <h2>Humedad ambiente: <span id="hum">--</span> %</h2>
     <h2>Humedad del suelo: <span id="soil">--</span></h2>
+  </div>
+
+  <div class="card">
+    <h2>Modo</h2>
+    <h3><span id="modeText">MANUAL</span></h3>
+    <div id="toggleMode" class="switch" onclick="toggleMode()">
+      <div class="circle"></div>
+    </div>
   </div>
 
   <div class="card">
@@ -45,29 +53,44 @@ const BASE = "https://blynk.cloud/external/api";
 function readData() {
   fetch(`${BASE}/get?token=${TOKEN}&V0`).then(r=>r.json()).then(data => document.getElementById("temp").innerText = data);
   fetch(`${BASE}/get?token=${TOKEN}&V1`).then(r=>r.json()).then(data => document.getElementById("hum").innerText = data);
+  
   fetch(`${BASE}/get?token=${TOKEN}&V3`).then(r=>r.json()).then(data => {
-    document.getElementById("soil").innerText = data == 0 ? "SECO" : "HÚMEDO";
+    document.getElementById("soil").innerText = data == 0 ? "HÚMEDO" : "SECO";
+  });
+
+  fetch(`${BASE}/get?token=${TOKEN}&V5`).then(r=>r.json()).then(data => {
+    let mode = document.getElementById("toggleMode");
+    document.getElementById("modeText").innerText = data == 1 ? "AUTOMÁTICO" : "MANUAL";
+
+    if(data == 1) mode.classList.add("on");
+    else mode.classList.remove("on");
   });
 }
 
 setInterval(readData, 2000);
 readData();
 
-// ---- Control Ventilador (V2) ----
+// ---- Switch Ventilador ----
 function toggleFan() {
   const sw = document.getElementById("toggleFan");
-  const isOn = sw.classList.contains("on");
-  const newVal = isOn ? 0 : 1;
+  const newVal = sw.classList.contains("on") ? 0 : 1;
   fetch(`${BASE}/update?token=${TOKEN}&V2=${newVal}`);
   sw.classList.toggle("on");
 }
 
-// ---- Control Bomba (V4) ----
+// ---- Switch Bomba (Manual) ----
 function togglePump() {
   const sw = document.getElementById("togglePump");
-  const isOn = sw.classList.contains("on");
-  const newVal = isOn ? 0 : 1;
+  const newVal = sw.classList.contains("on") ? 0 : 1;
   fetch(`${BASE}/update?token=${TOKEN}&V4=${newVal}`);
+  sw.classList.toggle("on");
+}
+
+// ---- Switch Modo ----
+function toggleMode() {
+  const sw = document.getElementById("toggleMode");
+  const newVal = sw.classList.contains("on") ? 0 : 1;
+  fetch(`${BASE}/update?token=${TOKEN}&V5=${newVal}`);
   sw.classList.toggle("on");
 }
 </script>

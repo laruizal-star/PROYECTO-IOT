@@ -82,4 +82,49 @@ function readData() {
     else pumpBtn.classList.remove("disabled");
   });
 
-  // ---- Leer estado real de la bomba
+  // ---- Leer estado real de la bomba desde V4 ----
+  fetch(`${BASE}/get?token=${TOKEN}&V4`).then(r=>r.json()).then(data => {
+    let pump = document.getElementById("togglePump");
+    if(data == 1) pump.classList.add("on");
+    else pump.classList.remove("on");
+  });
+
+}
+
+setInterval(readData, 2000);
+readData();
+
+// ---- Switch Ventilador ----
+function toggleFan() {
+  const sw = document.getElementById("toggleFan");
+  const newVal = sw.classList.contains("on") ? 0 : 1;
+  fetch(`${BASE}/update?token=${TOKEN}&V2=${newVal}`);
+  sw.classList.toggle("on");
+}
+
+// ---- Switch Bomba (Manual SOLO si modoManual) ----
+function togglePump() {
+
+  if (modoActual == 1) {
+    console.log("❌ No se puede modificar la bomba en modo automático");
+    return;
+  }
+
+  const sw = document.getElementById("togglePump");
+  const newVal = sw.classList.contains("on") ? 0 : 1;
+  fetch(`${BASE}/update?token=${TOKEN}&V4=${newVal}`);
+  sw.classList.toggle("on");
+}
+
+// ---- Switch Modo ----
+function toggleMode() {
+  const sw = document.getElementById("toggleMode");
+  const newVal = sw.classList.contains("on") ? 0 : 1;
+  fetch(`${BASE}/update?token=${TOKEN}&V5=${newVal}`);
+  sw.classList.toggle("on");
+}
+
+</script>
+
+</body>
+</html>
